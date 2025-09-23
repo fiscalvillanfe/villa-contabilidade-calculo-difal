@@ -1,0 +1,715 @@
+<html lang="pt-br"><head>
+<link rel='icon' type='image/svg+xml' href='data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA2NCA2NCc+CiAgICA8cmVjdCB3aWR0aD0nNjQnIGhlaWdodD0nNjQnIHJ4PScxMCcgcnk9JzEwJyBmaWxsPScjOEIwMDAwJy8+CiAgICA8dGV4dCB4PSc1MCUnIHk9JzU2JScgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1mYW1pbHk9J1NlZ29lIFVJJyBmb250LXNpemU9JzM0JyBmaWxsPScjZmZmJz5EPC90ZXh0PgogICAgPC9zdmc+'>
+<meta name='theme-color' content='#8B0000'>
+<title>...:::: Diferencial de Alíquotas ::::...</title>
+<meta charset="utf-8">
+<link rel="shortcut icon" href="imagens/favicon.png" type="image/x-icon">
+<link href="css/estilo.css" type="text/css" rel="stylesheet" media="screen">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
+
+
+<meta id="dcngeagmmhegagicpcmpinaoklddcgon"></head>
+
+<body>
+  <header>
+      <div id="voltarea">
+	    <a href="http://diferencialdealiquotas.fisconet.com.br/">Voltar</a>
+	  </div>
+      <div id="logoarea">
+	     <img src="imagens/logo.png">
+	  </div>
+  </header>
+	  <section id="corpo">
+	    <form method="post" name="form1" action="diferencial_rs.php">
+         <table id="dados_calculadora">
+		    <tbody><tr>
+				<td colspan="3" class="facil_tit"><span>Diferencial de Alíquotas - MG</span></td>
+				<td><span><img src="imagens/bandeira_mg.gif"></span></td>
+			</tr>
+            <tr>			
+			    <td colspan="4" class="facil_subtit"><span>Dados para o Cálculo:
+				</span></td>
+			</tr>			
+			<tr>
+			    <td class="titulo_input"><span>Estado Origem:</span></td>
+				<td class="facil_select">
+				<select class="select" id="estados" style="background:#FFF;" name="estados">
+				   <option value="">Selecione...</option>
+				   <option value="1">Acre</option>
+                   <option value="2">Alagoas</option>
+                   <option value="3">Amazonas</option>
+                   <option value="4">Amapá</option>
+                   <option value="5">Bahia</option>
+                   <option value="6">Ceará</option>
+                   <option value="7">Distrito Federal</option>
+                   <option value="8">Espírito Santo</option>
+                   <option value="9">Goiás</option>
+                   <option value="10">Maranhão</option>
+                   <option value="11">Mato Grosso</option>
+                   <option value="12">Mato Grosso do Sul</option>
+                   <option value="13" disabled="">Minas Gerais</option>
+                   <option value="14">Pará</option>
+                   <option value="15">Paraíba</option>
+                   <option value="16">Paraná</option>
+                   <option value="17">Pernambuco</option>
+                   <option value="18">Piauí</option>
+				   <option value="19">Rio Grande do Norte</option>
+				   <option value="20">Rio Grande do Sul</option>
+                   <option value="21">Rio de Janeiro</option>
+                   <option value="22">Rondônia</option>
+                   <option value="23">Roraima</option>
+                   <option value="24">Santa Catarina</option>
+                   <option value="25">São Paulo</option>
+                   <option value="26">Sergipe</option>
+                   <option value="27">Tocantins</option>
+				  </select>
+				</td>
+				<td class="titulo_input"><span>Regime Tributário destino:</span></td>
+				<td class="facil_input">
+				  <select class="select" id="regime" name="regime">
+				   <option selected="selected" value="">Selecione</option>
+				   <option value="1">Normal</option>
+				   <option value="2">Simples Nacional</option>
+				  </select>
+			    </td>
+		    </tr>
+			<tr>
+			    <td class="titulo_input"><span>Destinação da Mercadoria:</span></td>
+				<td class="facil_input">
+				<select class="select" id="destinacao" name="destinacao" onclick="esconder()">
+				   <option selected="selected" value="">Selecione</option>
+				   <option value="1">Comercialização</option>
+				   <option value="2">Matéria Prima</option>
+				   <option value="3">Consumo/Ativo</option>
+				</select>
+				</td>
+				<td class="titulo_input"><span>Mercadoria é tributada 4% ?</span></td>
+				<td class="facil_input">
+				<select class="select" id="origem" name="origem">
+				   <option selected="selected" value="">Selecione</option>
+				   <option value="1">Sim</option>
+				   <option value="2">Não</option>
+				</select>
+				</td>
+		    </tr>
+		</tbody></table>
+		<table id="aviso_1">
+            <tbody><tr>
+				<td>O regulamento do ICMS do Estado de Minas Gerais não prevê a incidência de diferencial
+					de alíquotas quando a mercadoria for destinada a comercialização ou industrialização,
+					de empresas do regime normal de tributação (RPA).</td>
+			</tr>
+		</tbody></table>
+		<table id="valores_antecipa">
+		    <tbody><tr>			
+			    <td colspan="4" class="facil_subtit"><span>Valores para o Cálculo:
+				</span></td>
+			</tr>
+			<tr>
+			    <td class="titulo_input"><span>Valor da Operação NF:</span></td>
+				<td class="facil_input"><input class="input" onkeyup="mascara(this, mvalor);" type="text" placeholder="R$ 00,00" id="base_a" autocomplete="on" name="base_a"></td>
+			</tr>
+			<tr>
+			    <td class="titulo_input"><span>Alíquota Interna Destino(%):</span></td>
+				<td class="facil_input">
+				<select class="select" id="destino_a" name="destino_a">
+				   <option selected="selected" value="">Selecione</option>
+				   <option value="3">31</option>
+				   <option value="4">30</option>
+				   <option value="5">27</option>
+				   <option value="6">25</option>
+				   <option value="7">23</option>
+				   <option value="8">18</option>
+				   <option value="9">16</option>
+				   <option value="10">15</option>
+				   <option value="11">12</option>
+				   <option value="12">7</option>
+				  </select>
+				</td>
+				<td class="titulo_input"><span>Fundo de Pobreza Destino(%):</span></td>
+				<td class="facil_input"><input class="input" id="fcp_a" type="text" onkeyup="mascara(this, mvalor);" placeholder="00.00%" autocomplete="on" name="fcp_a"></td>
+			</tr>
+			<tr>
+				<td class="titulo_input"><span>Redução de Base Origem:</span></td>
+				<td class="facil_input" colspan="4">
+				<select class="select" id="reducaoforma_1" name="reducaoforma_1">
+					<option selected="selected" value="1">Redução para (%)</option>
+					<option value="2">Redução em (%)</option>
+					<option value="3">Carga Tributaria (%)</option>
+				</select>
+				<input class="input" type="text" placeholder="00.00%" autocomplete="on" onkeyup="mascara(this, mvalor);" id="reducao_1" name="reducao_1"></td>
+			</tr>
+			<tr>
+			    <td class="titulo_input"><span>Redução de Base Destino:</span></td>
+			    <td class="facil_input" colspan="4">
+				<select class="select" id="reducaoforma_2" name="reducaoforma_2">
+				   <option selected="selected" value="1">Redução para (%)</option>
+				   <option value="2">Redução em (%)</option>
+				   <option value="3">Carga Tributaria (%)</option>
+				</select>
+				<input class="input" type="text" placeholder="00.00%" autocomplete="on" onkeyup="mascara(this, mvalor);" id="reducao_2" name="reducao_2"></td>
+			</tr>
+			<tr>
+			    <td class="facil_input" colspan="4"><input class="botaofil" type="button" onclick="calcular_antecipa()" value="Calcular"></td>
+			</tr>
+		 </tbody></table>
+		 <table id="valores_diferenca">
+			<tbody><tr>			
+			    <td colspan="6" class="facil_subtit"><span>Valores para o Cálculo:</span></td>
+			</tr>
+		    <tr>
+				<td class="titulo_input"><span>Valor da Operação NF:</span></td>
+				<td class="facil_input"><input class="input" onkeyup="mascara(this, mvalor);" type="text" placeholder="R$ 00,00" id="base_d" autocomplete="on" name="base_d"></td>
+		    </tr>
+			<tr>
+				<td class="titulo_input"><span>Alíquota Interna Destino(%):</span></td>
+				<td class="facil_input">
+				<select class="select" id="destino_d" name="destino_d">
+					<option selected="selected" value="">Selecione</option>
+					<option value="3">31</option>
+				   <option value="4">30</option>
+				   <option value="5">27</option>
+				   <option value="6">25</option>
+				   <option value="7">23</option>
+				   <option value="8">18</option>
+				   <option value="9">16</option>
+				   <option value="10">15</option>
+				   <option value="11">12</option>
+				   <option value="12">7</option>
+				</select>
+				</td>
+				<td class="titulo_input"><span>Fundo de Pobreza Destino(%):</span></td>
+			    <td class="facil_input"><input class="input" id="fcp_d" type="text" onkeyup="mascara(this, mvalor);" placeholder="00.00%" autocomplete="on" name="fcp_d"></td>
+			</tr>
+			<tr>
+				<td class="titulo_input"><span>Redução de Base Origem:</span></td>
+				<td class="facil_input" colspan="4">
+				<select class="select" id="reducaoforma_3" name="reducaoforma_3">
+					<option selected="selected" value="1">Redução para (%)</option>
+					<option value="2">Redução em (%)</option>
+					<option value="3">Carga Tributaria (%)</option>
+				</select>
+				<input class="input" type="text" placeholder="00.00%" autocomplete="on" onkeyup="mascara(this, mvalor);" id="reducao_3" name="reducao_3"></td>
+			</tr>
+			<tr>
+				<td class="titulo_input"><span>Redução de Base Destino:</span></td>
+				<td class="facil_input" colspan="4">
+				<select class="select" id="reducaoforma_4" name="reducaoforma_4">
+				  <option selected="selected" value="1">Redução para (%)</option>
+						<option value="2">Redução em (%)</option>
+						<option value="3">Carga Tributaria (%)</option>
+					</select>
+					<input class="input" type="text" placeholder="00.00%" autocomplete="on" onkeyup="mascara(this, mvalor);" id="reducao_4" name="reducao_4"></td>
+			</tr>
+			<tr>
+				<td class="facil_input" colspan="4"><input class="botaofil" type="button" onclick="calcular_diferenca()" value="Calcular"></td>
+			</tr>
+		 </tbody></table>
+		 <div id="resultado">
+		 <table>
+		    <tbody><tr>			
+			    <td colspan="4" class="facil_subtit"><span>Dados Informados:
+				</span></td>
+            </tr>
+            <tr class="dados_titulo">			
+			    <td><span>Estado de Origem
+				</span></td>			
+			    <td><span>Estado de Destino
+				</span></td>
+				<td><span>Alíquota interestadual (%)
+				</span></td>
+				<td><span>Alíquota Interna (%)
+				</span></td>
+			</tr>
+			<tr class="dados_resul">	
+			    <td><span><input id="estados_i" disabled="disabled" class="input_resul" type="text"></span></td>
+			    <td><span>MG</span></td>
+				<td><span><input id="aliqinter_i" disabled="disabled" class="input_resul" type="text"></span></td>
+				<td><span><input id="aliqdest_i" disabled="disabled" class="input_resul" type="text"></span></td>
+			</tr>
+			<tr class="dados_titulo">			
+			    <td><span>Aliq. FCP (%)
+				</span></td>			
+			    <td colspan="2"><span>Valor Operação NF (R$)
+				</span></td>
+				<td><span>Redução de BC do Destino (%)
+				</span></td>
+			</tr>
+			<tr class="dados_resul">					
+			    <td><span><input id="aliqfcp_i" disabled="disabled" class="input_resul" type="text"></span></td>			
+			    <td colspan="2"><span><input id="base_i" disabled="disabled" class="input_resul" type="text"></span></td>
+				<td><span><input id="reducao_i" disabled="disabled" class="input_resul" type="text"></span></td>
+			</tr>
+			<tr>
+			    <td colspan="4" class="facil_subtit"><span>Imposto Apurado:
+				</span></td>
+			</tr>
+			<tr class="dados_titulo">					
+			    <td><span>Diferencial de Alíquotas (R$)
+				</span></td>		
+			    <td><span>Fundo de Pobreza (R$)
+				</span></td>
+				<td colspan="2"><span>Total a Recolher (R$)
+				</span></td>
+			</tr>
+			<tr class="dados_resul">					
+			    <td><span><input id="diferencial_i" disabled="disabled" class="input_resul" type="text"></span></td>			
+			    <td><span><input id="fcprecolher_i" disabled="disabled" class="input_resul" type="text"></span></td>
+				<td colspan="2"><span><input id="total_i" disabled="disabled" class="input_resul" type="text"></span></td>
+			</tr>
+		 </tbody></table>
+		 </div>
+		 <div id="base_legal">
+				<h2>- Base Legal do Cálculo Diferencial Comercialização/Industrialização Minas Gerais:</h2>
+				<p>O cálculo do diferencial de aliquotas nas aquisições de mercadorias, oriundas de outro Estado para comercialização e industrialização de
+					microempresa ou empresa de pequeno porte, consta no inciso XII do art.12 do RICMS/MG.
+				</p>
+                <p>Art. 12 – Salvo disposição diversa prevista neste regulamento, a base de cálculo do ICMS é:</p>
+				<p>(...)</p>
+				<p>
+					XII – na aquisição efetuada por microempresa ou empresa de pequeno porte, em operação interestadual, de mercadoria para industrialização, beneficiamento ou acondicionamento não industriais complementares à produção primária, comercialização ou utilização na prestação de serviço, a que se refere o inciso VII do art. 3º deste regulamento, o valor da operação, observado o disposto no inciso VI do caput e no § 7º;
+				</p>
+				
+				<h2>- Base Legal do Cálculo Diferencial Ativo Imobilizado/Consumo Minas Gerais:</h2>
+				<p>O cálculo do diferencial de aliquotas nas aquisições para ativo imobilizado e uso ou consumo consta 
+				   no inciso VI do art.12 do RICMS/MG.</p>
+				<p>Art. 12 – Salvo disposição diversa prevista neste regulamento, a base de cálculo do ICMS é:</p>
+				<p>(...)</p>
+				<p>
+					VI – na entrada, no território do Estado, decorrente de operação interestadual, de mercadoria ou bem destinados a estabelecimento de contribuinte, para uso, consumo ou integração ao seu ativo imobilizado, a que se refere o inciso III do art. 3º deste regulamento, o valor da operação, observado o seguinte:
+				</p>
+				<p>a) para fins do disposto no art. 18 deste regulamento:</p>
+			    <p>1 – do valor da operação será excluído o valor do imposto correspondente à operação interestadual;</p>
+
+			<p>2 – ao valor obtido na forma do item 1 da alínea “a” será incluído o valor do imposto considerando a alíquota interna a consumidor final estabelecida neste Estado para a mercadoria;</p>
+
+		    <p>b) sobre o valor obtido na forma do item 2 da alínea “a” será aplicada a alíquota interna a consumidor final estabelecida neste Estado para a mercadoria;</p>
+
+	        <p>c) o imposto devido corresponderá à diferença positiva entre o valor obtido na forma da alínea “b” e o valor do imposto relativo à operação interestadual, assim considerado o valor resultante da aplicação da alíquota interestadual sobre o valor da operação de que trata o item 1 da alínea “a” antes da exclusão do imposto;</p>
+		 </div>
+	   </form>
+	  </section>
+	  <script>
+        
+	     // mascara de moeda
+
+     function mascara(o,f){
+      v_obj=o
+      v_fun=f
+     setTimeout("execmascara()",1)
+     };
+     function execmascara(){
+      v_obj.value=v_fun(v_obj.value)
+     };
+     function mvalor(v){
+      v=v.replace(/\D/g,"");//Remove tudo o que não é dígito
+      v=v.replace(/(\d)(\d{2})$/,"$1.$2");//coloca a virgula antes dos 2 últimos dígitos
+      return v;
+     };	
+       
+       //Esconder avisos
+
+	     //Esconder e Aparecer calculadora
+		 function esconder(){
+          if(document.form1.destinacao.value==1){
+	        $("#valores_antecipa").show();
+	        $("#valores_diferenca").hide();
+			$("#resultado").hide();
+	        };
+		  if(document.form1.destinacao.value==2){
+            $("#valores_antecipa").show();
+	        $("#valores_diferenca").hide();
+			$("#resultado").hide();
+		  };
+		  if(document.form1.destinacao.value==3){
+            $("#valores_diferenca").show();
+	        $("#valores_antecipa").hide();
+			$("#resultado").hide();
+		  };
+		 };
+
+		function calcular_antecipa(){
+
+		//Bloquear ação com campos em branco
+		
+        if(document.getElementById("estados").value == '' ){
+		alert('Estado de origem não selecionado');
+		callback(); 
+		};
+		if(document.getElementById("destinacao").value == '' ){
+		alert('Destinação da Mercadoria não selecionada');
+		callback(); 
+		};
+		if(document.getElementById("origem").value == '' ){
+		alert('Informe se a mercadoria é tributada a 4%');
+		callback(); 
+		};
+        if(document.getElementById("destino_a").value == '' ){
+		alert('Selecione a alíquota interna na UF de destino');
+		callback(); 
+		};
+        if(document.getElementById("base_a").value == '' ){
+		alert('Informe a base de Cálculo da NF');
+		callback(); 
+		};
+        if(document.getElementById("regime").value == '' ){
+		alert('Informe o Regime Tributário');
+		callback(); 
+		};
+		// Avisos 
+
+		if(document.getElementById('destinacao').value == 1 && document.getElementById('regime').value == 1
+		|| document.getElementById('destinacao').value == 2 && document.getElementById('regime').value == 1){
+	     $("#aviso_1").show();
+		 $("#resultado").hide();
+	    }else
+		{$("#aviso_1").hide();
+		 $("#resultado").show();
+		};
+
+	     //Definir aliquota interestadual
+         //Nacional
+		 if (document.getElementById('origem').value == 2){
+		  var aliqinter_a = 12;
+		};
+		 //Importado
+		 if(document.getElementById('origem').value == 1){
+		  var aliqinter_a = 4;
+		};
+		 
+		 //Definir aliquota interna
+		 if (document.getElementById('destino_a').value == 3){
+		   var aliqdest_a = 31;
+		 };
+		 if(document.getElementById('destino_a').value == 4){
+		   var aliqdest_a = 30;
+		 };
+		 if(document.getElementById('destino_a').value == 5){
+		   var aliqdest_a = 27;
+		 };
+		 if(document.getElementById('destino_a').value == 6){
+		   var aliqdest_a = 25;
+		 };
+		 if(document.getElementById('destino_a').value == 7){
+		   var aliqdest_a = 23;
+		 };
+		 if(document.getElementById('destino_a').value == 8){
+		   var aliqdest_a = 18;
+		 };
+		 if(document.getElementById('destino_a').value == 9){
+		   var aliqdest_a = 16;
+		 };
+		 if(document.getElementById('destino_a').value == 10){
+		   var aliqdest_a = 15;
+		 };
+		 if(document.getElementById('destino_a').value == 11){
+		   var aliqdest_a = 12;
+		 };
+		 if(document.getElementById('destino_a').value == 12){
+		   var aliqdest_a = 7;
+		 };
+
+		//Definir Base de Cálculo
+        
+		var base_a = (document.getElementById('base_a').value) * 1;
+
+		//Definir Aliquota FCP
+
+		var aliqfcp_a = (document.getElementById('fcp_a').value) * 1;
+
+		//Definir Redução de Base
+
+		var reducaobase_1 = document.getElementById('reducao_1').value;
+		var reducaobase_2 = document.getElementById('reducao_2').value;
+		 
+		 //Definir estados
+         if (document.getElementById('estados').value == 1){var estado_rem = "AC";};
+		 if (document.getElementById('estados').value == 2){var estado_rem = "AL";}
+         if (document.getElementById('estados').value == 3){var estado_rem = "AM";}
+         if (document.getElementById('estados').value == 4){var estado_rem = "AP";}
+		 if (document.getElementById('estados').value == 5){var estado_rem = "BA";}
+         if (document.getElementById('estados').value == 6){var estado_rem = "CE";}           
+         if (document.getElementById('estados').value == 7){var estado_rem = "DF";}
+         if (document.getElementById('estados').value == 8){var estado_rem = "ES";}          
+         if (document.getElementById('estados').value == 9){var estado_rem = "GO";}
+         if (document.getElementById('estados').value == 10){var estado_rem = "MA";}
+         if (document.getElementById('estados').value == 11){var estado_rem = "MT";}
+         if (document.getElementById('estados').value == 12){var estado_rem = "MS";}
+         if (document.getElementById('estados').value == 13){var estado_rem = "MG";}
+		 if (document.getElementById('estados').value == 14){var estado_rem = "PA";}
+         if (document.getElementById('estados').value == 15){var estado_rem = "PB";}          
+         if (document.getElementById('estados').value == 16){var estado_rem = "PR";}          
+         if (document.getElementById('estados').value == 17){var estado_rem = "PE";}
+         if (document.getElementById('estados').value == 18){var estado_rem = "PI";}
+         if (document.getElementById('estados').value == 19){var estado_rem = "RN";}
+		 if (document.getElementById('estados').value == 20){var estado_rem = "RS";}
+         if (document.getElementById('estados').value == 21){var estado_rem = "RJ";}
+         if (document.getElementById('estados').value == 22){var estado_rem = "RO";}
+         if (document.getElementById('estados').value == 23){var estado_rem = "RR";}
+         if (document.getElementById('estados').value == 24){var estado_rem = "SC";}          
+         if (document.getElementById('estados').value == 25){var estado_rem = "SP";}
+         if (document.getElementById('estados').value == 26){var estado_rem = "SE";}
+         if (document.getElementById('estados').value == 27){var estado_rem = "TO";}
+
+         //Calcular Antecipação
+
+		 //Base Reduzida Origem
+		 if(reducaobase_1 > 0){
+		 if(document.getElementById('reducaoforma_1').value == 1){
+		 var basereduz_orig = (reducaobase_1/100);
+		 }
+		 if(document.getElementById('reducaoforma_1').value == 2){
+		 var basereduz_orig = (100 - reducaobase_1)/100;
+		 }	 
+		 if(document.getElementById('reducaoforma_1').value == 3){
+		 var basereduz_orig = (reducaobase_1/aliqinter_a);}
+		 }else{basereduz_orig = 1 ;}
+
+         //Base Reduzida Destino
+		 if(reducaobase_2 > 0){
+		 if(document.getElementById('reducaoforma_2').value == 1){
+		 var basereduz_dest = (reducaobase_2/100);
+		 }
+		 if(document.getElementById('reducaoforma_2').value == 2){
+		 var basereduz_dest = (100 - reducaobase_2)/100;
+		 }	 
+		 if(document.getElementById('reducaoforma_2').value == 3){
+		 var basereduz_dest = (reducaobase_2/aliqdest_a);}
+		 }else{basereduz_dest = 1 ;}
+
+		 //Icms Destino
+		 var icmsdest_a = (base_a * basereduz_dest) * (aliqdest_a/100);
+		
+		 //Icms Origem
+         var icmsorigem_a = (base_a * basereduz_orig) * (aliqinter_a/100);
+
+         //Antecipação Resultado
+         var total = ((((base_a - icmsorigem_a)/( 1 - ((aliqdest_a + aliqfcp_a)/100))) * basereduz_dest) * ((aliqdest_a + aliqfcp_a)/100)) - icmsorigem_a;
+        
+         //Calcular FCP
+         var fcprecolher = ((base_a - icmsorigem_a)/( 1 - ((aliqdest_a + aliqfcp_a)/100)) * basereduz_dest) * (aliqfcp_a/100);
+		 
+		 //Total Antecipação
+         
+         var diferencial = total - fcprecolher;
+         if(diferencial < 0){
+		    var diferencial = 0;
+			var total = fcprecolher;
+		 }else{
+		 var diferencial = total - fcprecolher;
+		 }
+		 //Total Antecipação
+         
+		 //Imprimir
+		 document.getElementById('aliqinter_i').value = aliqinter_a.toString();
+		 document.getElementById('aliqdest_i').value = aliqdest_a.toString();
+         document.getElementById('estados_i').value = estado_rem.toString();
+		 document.getElementById('aliqfcp_i').value = aliqfcp_a.toString();
+		 document.getElementById('reducao_i').value = reducaobase_2.toString();
+		 document.getElementById('diferencial_i').value = diferencial.toFixed(2);
+		 document.getElementById('base_i').value = base_a.toFixed(2);
+		 document.getElementById('fcprecolher_i').value = fcprecolher.toFixed(2);
+		 document.getElementById('total_i').value = total.toFixed(2);
+		};
+
+		function calcular_diferenca(){
+
+		//Avisos
+
+	    if(document.getElementById('destinacao').value == 2 && document.getElementById('origem').value == 2 ){
+	     $("#aviso_1").show();
+		 $("#resultado").hide();
+	    }else
+		{$("#aviso_1").hide();
+		 $("#resultado").show();
+		};
+
+        //Bloquear ação com campos em branco
+		
+        if(document.getElementById("estados").value == '' ){
+		alert('Estado de origem não selecionado');
+		$("#resultado").hide();
+		callback(); 
+		};
+		if(document.getElementById("destinacao").value == '' ){
+		alert('Destinação da Mercadoria não selecionada');
+		$("#resultado").hide();
+		callback(); 
+		};
+		if(document.getElementById("origem").value == '' ){
+		alert('Informe se a mercadoria é tributada a 4%');
+		$("#resultado").hide();
+		callback(); 
+		};
+        if(document.getElementById("destino_d").value == '' ){
+		alert('Selecione a alíquota interna na UF de destino');
+		$("#resultado").hide();
+		callback(); 
+		};
+        if(document.getElementById("base_d").value == '' ){
+		alert('Informe o valor da operação da NF');
+		$("#resultado").hide();
+		callback(); 
+		};
+		if(document.getElementById("regime").value == '' ){
+		alert('Informe o Regime Tributário');
+		$("#resultado").hide();
+		callback(); 
+		};
+
+	     //Definir aliquota interestadual
+         //Nacional
+
+		 if (document.getElementById('origem').value == 2){
+		  var aliqinter_d = 12;
+		};
+		 //Importado
+		 if(document.getElementById('origem').value == 1){
+		  var aliqinter_d = 4;
+		};
+		 
+		 //Definir aliquota interna
+		 if (document.getElementById('destino_d').value == 3){
+		   var aliqdest_d = 31;
+		 };
+		 if(document.getElementById('destino_d').value == 4){
+		   var aliqdest_d = 30;
+		 };
+		 if(document.getElementById('destino_d').value == 5){
+		   var aliqdest_d = 27;
+		 };
+		 if(document.getElementById('destino_d').value == 6){
+		   var aliqdest_d = 25;
+		 };
+		 if(document.getElementById('destino_d').value == 7){
+		   var aliqdest_d = 23;
+		 };
+		 if(document.getElementById('destino_d').value == 8){
+		   var aliqdest_d = 18;
+		 };
+		 if(document.getElementById('destino_d').value == 9){
+		   var aliqdest_d = 16;
+		 };
+		 if(document.getElementById('destino_d').value == 10){
+		   var aliqdest_d = 15;
+		 };
+		 if(document.getElementById('destino_d').value == 11){
+		   var aliqdest_d = 12;
+		 };
+		 if(document.getElementById('destino_d').value == 12){
+		   var aliqdest_d = 7;
+		 };
+
+		//Definir Base de Cálculo
+        
+		var base_d = (document.getElementById('base_d').value) * 1;
+
+		//Definir Aliquota FCP
+
+		var aliqfcp_d = document.getElementById('fcp_d').value * 1;
+
+		//Definir Redução de Base
+
+		var reducaobase_3 = document.getElementById('reducao_3').value;
+		var reducaobase_4 = document.getElementById('reducao_4').value;
+		 
+		 //Definir estados
+         if (document.getElementById('estados').value == 1){var estado_rem = "AC";};
+		 if (document.getElementById('estados').value == 2){var estado_rem = "AL";}
+         if (document.getElementById('estados').value == 3){var estado_rem = "AM";}
+         if (document.getElementById('estados').value == 4){var estado_rem = "AP";}
+		 if (document.getElementById('estados').value == 5){var estado_rem = "BA";}
+         if (document.getElementById('estados').value == 6){var estado_rem = "CE";}           
+         if (document.getElementById('estados').value == 7){var estado_rem = "DF";}
+         if (document.getElementById('estados').value == 8){var estado_rem = "ES";}          
+         if (document.getElementById('estados').value == 9){var estado_rem = "GO";}
+         if (document.getElementById('estados').value == 10){var estado_rem = "MA";}
+         if (document.getElementById('estados').value == 11){var estado_rem = "MT";}
+         if (document.getElementById('estados').value == 12){var estado_rem = "MS";}
+         if (document.getElementById('estados').value == 13){var estado_rem = "MG";}
+		 if (document.getElementById('estados').value == 14){var estado_rem = "PA";}
+         if (document.getElementById('estados').value == 15){var estado_rem = "PB";}          
+         if (document.getElementById('estados').value == 16){var estado_rem = "PR";}          
+         if (document.getElementById('estados').value == 17){var estado_rem = "PE";}
+         if (document.getElementById('estados').value == 18){var estado_rem = "PI";}
+         if (document.getElementById('estados').value == 19){var estado_rem = "RN";}
+		 if (document.getElementById('estados').value == 20){var estado_rem = "RS";}
+         if (document.getElementById('estados').value == 21){var estado_rem = "RJ";}
+         if (document.getElementById('estados').value == 22){var estado_rem = "RO";}
+         if (document.getElementById('estados').value == 23){var estado_rem = "RR";}
+         if (document.getElementById('estados').value == 24){var estado_rem = "SC";}          
+         if (document.getElementById('estados').value == 25){var estado_rem = "SP";}
+         if (document.getElementById('estados').value == 26){var estado_rem = "SE";}
+         if (document.getElementById('estados').value == 27){var estado_rem = "TO";}
+
+         //Calcular Antecipação
+
+		 //Base Reduzida Origem
+		 if(reducaobase_3 > 0){
+		 if(document.getElementById('reducaoforma_3').value == 1){
+		 var basereduz_orig = (reducaobase_3/100);
+		 }
+		 if(document.getElementById('reducaoforma_3').value == 2){
+		 var basereduz_orig = (100 - reducaobase_3)/100;
+		 }	 
+		 if(document.getElementById('reducaoforma_3').value == 3){
+		 var basereduz_orig = (reducaobase_3/aliqinter_d);}
+		 }else{basereduz_orig = 1 ;}
+
+         //Base Reduzida Destino
+		 if(reducaobase_4 > 0){
+		 if(document.getElementById('reducaoforma_4').value == 1){
+		 var basereduz_dest = (reducaobase_4/100);
+		 }
+		 if(document.getElementById('reducaoforma_4').value == 2){
+		 var basereduz_dest = (100 - reducaobase_4)/100;
+		 }	 
+		 if(document.getElementById('reducaoforma_4').value == 3){
+		 var basereduz_dest = (reducaobase_4/aliqdest_d);}
+		 }else{basereduz_dest = 1 ;}
+
+		
+		 //Icms Destino
+		 var icmsdest_d = (base_d * basereduz_dest) * (aliqdest_d/100);
+		
+		 //Icms Origem
+         var icmsorigem_d = (base_d * basereduz_orig) * (aliqinter_d/100);
+
+         //Antecipação Resultado
+         var total = ((((base_d - icmsorigem_d)/( 1 - ((aliqdest_d + aliqfcp_d)/100))) * basereduz_dest) * ((aliqdest_d + aliqfcp_d)/100)) - icmsorigem_d;
+        
+         //Calcular FCP
+         var fcprecolher = ((base_d - icmsorigem_d)/( 1 - ((aliqdest_d + aliqfcp_d)/100)) * basereduz_dest) * (aliqfcp_d/100);
+
+		 //Total Antecipação
+         
+         var diferencial = total - fcprecolher;
+         if(diferencial < 0){
+		    var diferencial = 0;
+			var total = fcprecolher;
+		 }else{
+		 var diferencial = total - fcprecolher;
+		 }
+         
+		 //Imprimir
+		 document.getElementById('aliqinter_i').value = aliqinter_d.toString();
+		 document.getElementById('aliqdest_i').value = aliqdest_d.toString();
+         document.getElementById('estados_i').value = estado_rem.toString();
+		 document.getElementById('aliqfcp_i').value = aliqfcp_d.toString();
+		 document.getElementById('reducao_i').value = reducaobase_4.toString();
+		 document.getElementById('diferencial_i').value = diferencial.toFixed(2);
+		 document.getElementById('base_i').value = base_d.toFixed(2);
+		 document.getElementById('fcprecolher_i').value = fcprecolher.toFixed(2);
+		 document.getElementById('total_i').value = total.toFixed(2);
+
+		};
+	  </script>
+  <footer>
+  </footer>
+          
+
+	
+	
+	
+<div></div></body></html>
