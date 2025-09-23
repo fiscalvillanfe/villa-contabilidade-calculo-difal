@@ -34,3 +34,26 @@ button:active{transform:translateY(1px)}
 .table td{padding:10px;border-top:1px solid var(--border)}
 .share{margin-top:12px;display:flex;gap:10px}
 .muted{color:var(--muted);font-size:13px}
+
+
+/* ===== Embelezamentos extras (bordas, tipografia, foco) ===== */
+body{font-size:16px;line-height:1.35}
+.card{border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.04)}
+input,select{border-radius:12px;border:1px solid var(--border);transition:.15s border-color,.15s box-shadow,.15s transform}
+input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(139,0,0,.12)}
+label{font-weight:600}
+label > input,label > select{font-weight:500}
+button{border-radius:12px;box-shadow:0 4px 10px rgba(139,0,0,.15)}
+button:hover{filter:brightness(1.02)}
+button.ghost{border-radius:12px}
+.kpi{border-radius:14px}
+.table{border-radius:12px;overflow:hidden}
+.table th{letter-spacing:.2px}
+.table td{background:#fff}
+.topbar{border-radius:0 0 18px 18px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+.section-title{font-weight:700}
+.muted{font-style:normal;opacity:.9}
+
+/* sutil movimento quando clica */
+button:active{transform:translateY(1px) scale(0.99)}
+input:active,select:active{transform:scale(0.998)}
