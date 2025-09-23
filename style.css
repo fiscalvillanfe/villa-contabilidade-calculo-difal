@@ -12,64 +12,35 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, sans-serif;
-  background:var(--bg); color:var(--text);
-}
-
-.topbar{
-  position:sticky; top:0; z-index:10;
-  background:var(--surface); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:12px; padding:10px 14px;
-}
-.brand-logo{width:28px; height:28px; border-radius:6px}
-.brand{display:flex; flex-direction:column; line-height:1.1}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:10px 14px}
+.brand-logo{width:28px;height:28px;border-radius:6px}
+.brand{display:flex;flex-direction:column;line-height:1.1}
 .brand strong{color:var(--primary)}
-.brand small{color:var(--muted); font-size:12px}
-
-.wrapper{max-width:1080px; margin:22px auto; padding:0 16px}
-.card{
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius); box-shadow:var(--shadow);
-  padding:16px; margin:16px 0;
-}
-.pagehead h1{margin:0 0 6px; color:var(--primary)}
-.pagehead .muted{margin:0; color:var(--muted)}
-
-.grid{display:grid; gap:12px; grid-template-columns:1fr}
-@media(min-width:880px){ .grid{ grid-template-columns:repeat(3, minmax(200px,1fr)); } }
-
-label{display:flex; flex-direction:column; gap:6px; font-size:14px}
-input,select{
-  background:#fff; color:var(--text);
-  border:1px solid var(--border); border-radius:10px; padding:10px 12px; outline:none;
-}
+.brand small{color:var(--muted);font-size:12px}
+.wrapper{max-width:1080px;margin:22px auto;padding:0 16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:16px 0}
+.pagehead h1{margin:0 0 6px;color:var(--primary)}
+.pagehead .muted{margin:0;color:var(--muted)}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:880px){.grid{grid-template-columns:repeat(3,minmax(200px,1fr));}}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px}
+input,select{background:#fff;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;outline:none}
 input::placeholder{color:#999}
-
-.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-.btn{
-  border:none; border-radius:10px; padding:11px 16px; cursor:pointer;
-  font-weight:700; transition:.18s ease; font-size:14px;
-}
-.btn.primary{background:var(--primary); color:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:700;transition:.18s ease;font-size:14px}
+.btn.primary{background:var(--primary);color:#fff}
 .btn.primary:hover{background:var(--primary-600)}
-.btn.secondary{background:#555; color:#fff}
+.btn.secondary{background:#555;color:#fff}
 .btn.secondary:hover{background:#666}
-.btn.link{background:transparent; color:var(--primary); padding:0}
-
-.stats-grid{
-  display:grid; gap:10px;
-  grid-template-columns: repeat(5, minmax(160px,1fr));
-}
-@media(max-width:900px){ .stats-grid{ grid-template-columns: repeat(2, minmax(160px,1fr)); } }
-
-.stat{background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center}
-.stat .label{color:var(--muted); font-size:12px}
-.stat .value{font:800 20px/1.2 ui-sans-serif, system-ui}
-
+.btn.link{background:transparent;color:var(--primary);padding:0}
+.stats-grid{display:grid;gap:10px;grid-template-columns:repeat(5,minmax(160px,1fr))}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,minmax(160px,1fr));}}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat .label{color:var(--muted);font-size:12px}
+.stat .value{font:800 20px/1.2 ui-sans-serif,system-ui}
 .table-wrap{overflow:auto}
-table{width:100%; border-collapse:collapse; font-size:14px}
-th,td{padding:10px; border-bottom:1px solid var(--border); text-align:left}
-th{background:var(--primary); color:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
+th{background:var(--primary);color:#fff}
 tbody tr:hover{background:#fafafa}
