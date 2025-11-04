@@ -119,19 +119,6 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(165, 26, 26, 0.12);
 }
 
-.checkbox-inline {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  margin-top: 18px;
-  font-weight: 500;
-}
-
-.checkbox-inline input {
-  width: 18px;
-  height: 18px;
-}
-
 /* Buttons */
 
 .actions {
