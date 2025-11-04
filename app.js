@@ -47,19 +47,22 @@ let ALIQUOTA_INTERNA = {};
 let ALIQUOTA_INTERESTADUAL = {};
 let NCM_MAP = {};
 let NCM_META = { dataAtualizacao: "", ato: "" };
+let MVA_LIST = []; // { key, digits, mva }
 
+// Normaliza NCM pra só dígitos
 function normalizarNcm(str) {
   if (!str) return "";
   return String(str).replace(/\D/g, "");
 }
 
-// Carrega os 3 JSON (alíquota interna, interestadual e NCM)
+// Carrega os 4 JSONs
 async function carregarTabelas() {
   try {
-    const [intRes, interRes, ncmRes] = await Promise.all([
+    const [intRes, interRes, ncmRes, mvaRes] = await Promise.all([
       fetch("Aliquota_interna.json"),
       fetch("Tabela_Aliquota_interestadual.json"),
-      fetch("Tabela_NCM_Vigente_20251104.json")
+      fetch("Tabela_NCM_Vigente_20251104.json"),
+      fetch("Tabela_MVA.json")
     ]);
 
     if (intRes.ok) {
@@ -81,12 +84,36 @@ async function carregarTabelas() {
         }
       }
     }
+    if (mvaRes.ok) {
+      const mvaData = await mvaRes.json();
+      MVA_LIST = Object.entries(mvaData)
+        .map(([k, v]) => {
+          const digits = normalizarNcm(k);
+          const mva = Number(v);
+          if (!digits || isNaN(mva)) return null;
+          return { key: k, digits, mva };
+        })
+        .filter(Boolean)
+        // ordena por especificidade (mais dígitos primeiro)
+        .sort((a, b) => b.digits.length - a.digits.length);
+    }
   } catch (e) {
-    console.error("Erro ao carregar JSONs de alíquotas/NCM:", e);
+    console.error("Erro ao carregar JSONs:", e);
   } finally {
     atualizarCamposAliquotas();
     atualizarDescricaoNcm();
   }
+}
+
+// Procura MVA mais específico pra um NCM (prefix match)
+function findMvaForNcm(ncmDigits) {
+  if (!ncmDigits || !MVA_LIST.length) return null;
+  for (const item of MVA_LIST) {
+    if (ncmDigits.startsWith(item.digits)) {
+      return item; // primeiro já é o mais específico, porque lista está ordenada
+    }
+  }
+  return null;
 }
 
 function fillUFs() {
@@ -114,13 +141,13 @@ function atualizarCamposAliquotas() {
   const ufO = ufOrigemEl.value;
   const ufD = ufDestinoEl.value;
 
-  // Alíquota interna automática
+  // Alíquota interna automática (em %)
   if (ufD && Object.prototype.hasOwnProperty.call(ALIQUOTA_INTERNA, ufD) && aliqIntEl) {
     const aliqInt = ALIQUOTA_INTERNA[ufD]; // ex: 18, 17.5...
     aliqIntEl.value = String(aliqInt).replace(".", ",");
   }
 
-  // Alíquota interestadual automática
+  // Alíquota interestadual automática (em %)
   if (
     ufO &&
     ufD &&
@@ -128,32 +155,31 @@ function atualizarCamposAliquotas() {
     ALIQUOTA_INTERESTADUAL[ufO][ufD] != null &&
     aliqInterEl
   ) {
-    const aliq = ALIQUOTA_INTERESTADUAL[ufO][ufD]; // em %
-    const aliqDec = aliq / 100; // decimal
-
-    // Se não existir opção com esse valor, cria
-    let opt = Array.from(aliqInterEl.options).find(
-      o => Number(o.value) === aliqDec
-    );
-    if (!opt) {
-      opt = document.createElement("option");
-      opt.value = String(aliqDec);
-      opt.textContent = String(aliq);
-      aliqInterEl.appendChild(opt);
-    }
-    aliqInterEl.value = String(aliqDec);
+    const aliq = ALIQUOTA_INTERESTADUAL[ufO][ufD]; // ex: 7, 12...
+    aliqInterEl.value = String(aliq).replace(".", ",");
   }
+
+  // Se não achar nada, deixo em branco
 }
 
-// Atualiza descrição do NCM
+// Atualiza descrição do NCM e MVA automático
 function atualizarDescricaoNcm() {
   const ncmInput = document.getElementById("ncm");
   const descEl = document.getElementById("ncmDescricao");
+  const mvaEl = document.getElementById("mva");
+  const usarMvaEl = document.getElementById("usarMva");
+
   if (!ncmInput || !descEl) return;
 
-  const key = normalizarNcm(ncmInput.value);
-  if (!key) {
+  const keyDigits = normalizarNcm(ncmInput.value);
+
+  if (!keyDigits) {
     descEl.textContent = "Digite o NCM para buscar";
+    if (mvaEl) {
+      mvaEl.value = "";
+      mvaEl.title = "";
+    }
+    if (usarMvaEl) usarMvaEl.checked = false;
     return;
   }
 
@@ -162,13 +188,34 @@ function atualizarDescricaoNcm() {
     return;
   }
 
-  const item = NCM_MAP[key];
+  const item = NCM_MAP[keyDigits];
   if (!item) {
     descEl.textContent = "NCM não encontrado na tabela vigente.";
+    if (mvaEl) {
+      mvaEl.value = "";
+      mvaEl.title = "NCM não encontrado na tabela de NCM.";
+    }
+    if (usarMvaEl) usarMvaEl.checked = false;
     return;
   }
 
   descEl.textContent = `${item.Codigo} - ${item.Descricao}`;
+
+  // MVA automático pela tabela
+  if (mvaEl && usarMvaEl) {
+    const mvaInfo = findMvaForNcm(keyDigits);
+    if (mvaInfo) {
+      mvaEl.value = String(mvaInfo.mva).replace(".", ",");
+      usarMvaEl.checked = true;
+      mvaEl.readOnly = true;
+      mvaEl.title = `MVA automático (${mvaInfo.key})`;
+    } else {
+      mvaEl.value = "0";
+      usarMvaEl.checked = false;
+      mvaEl.readOnly = true;
+      mvaEl.title = "NCM sem MVA cadastrado na tabela.";
+    }
+  }
 }
 
 // Cálculo principal
@@ -187,16 +234,26 @@ function calcular(e) {
   const ncmEl = document.getElementById("ncm");
 
   const valor = getNumberFromBRL(valorEl && valorEl.value);
-  const aliqInt = parsePercentField(aliqIntEl); // decimal
-  const aliqInter = Number((aliqInterEl && aliqInterEl.value) || 0); // decimal
-  const fcpPct = parsePercentField(fcpEl);     // decimal
+  const aliqInt = parsePercentField(aliqIntEl);     // decimal
+  const aliqInter = parsePercentField(aliqInterEl); // decimal
+  const fcpPct = parsePercentField(fcpEl);          // decimal
   const redDestino = parsePercentField(redDestinoEl); // decimal
-  const mvaPct = parsePercentField(mvaEl);     // decimal
+  const mvaPct = parsePercentField(mvaEl);          // decimal
   const usarMva = usarMvaEl && usarMvaEl.checked;
+
+  if (!ufOrigemEl.value || !ufDestinoEl.value) {
+    alert("Selecione UF de origem e destino.");
+    return;
+  }
 
   if (!valor) {
     alert("Informe o valor da operação.");
     if (valorEl) valorEl.focus();
+    return;
+  }
+
+  if (!aliqInt && !aliqInter) {
+    alert("Não foi possível determinar as alíquotas. Verifique os JSON de alíquotas.");
     return;
   }
 
@@ -248,6 +305,9 @@ function calcular(e) {
 
   // Resumo para copiar
   const resumo = [
+    `UF Origem: ${ufOrigemEl.value}`,
+    `UF Destino: ${ufDestinoEl.value}`,
+    `NCM: ${(ncmEl && ncmEl.value) || ""}`,
     `Base no destino: ${fmtMoney(baseDestino)}`,
     `MVA aplicado: ${(mvaPct * 100).toFixed(2).replace(".", ",")}%`,
     `Alíquota interna: ${(aliqInt * 100).toFixed(2).replace(".", ",")}%`,
@@ -269,7 +329,7 @@ function calcular(e) {
     };
   }
 
-  // Link de compartilhamento
+  // Link de compartilhamento (guarda sempre em decimal)
   const params = new URLSearchParams({
     valor: String(valor),
     aliqInt: String(aliqInt),
@@ -311,7 +371,7 @@ function restoreFromURL() {
 
   const aliqInterEl = document.getElementById("aliqInter");
   if (aliqInterEl && q.has("aliqInter")) {
-    aliqInterEl.value = q.get("aliqInter") || "";
+    aliqInterEl.value = ((Number(q.get("aliqInter")) || 0) * 100).toFixed(2);
   }
 
   const fcpEl = document.getElementById("fcp");
@@ -367,6 +427,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const detalhe = document.getElementById("detalhe");
       if (cards) cards.classList.add("hidden");
       if (detalhe) detalhe.classList.add("hidden");
+
+      const mvaEl = document.getElementById("mva");
+      const usarMvaEl = document.getElementById("usarMva");
+      if (mvaEl) mvaEl.value = "";
+      if (usarMvaEl) usarMvaEl.checked = false;
     });
   }
 
