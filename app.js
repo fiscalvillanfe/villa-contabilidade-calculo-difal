@@ -12,9 +12,6 @@ const fmtMoney = v =>
     currency: "BRL"
   });
 
-const fmtPercent = v =>
-  ((isNaN(v) ? 0 : v) * 100).toFixed(2).replace(".", ",") + "%";
-
 // Máscara de dinheiro
 function maskMoney(el) {
   const only = String(el.value || "").replace(/[^\d]/g, "");
@@ -33,7 +30,7 @@ function getNumberFromBRL(str) {
   ) || 0;
 }
 
-// Lê campo de porcentagem em % e devolve decimal (18 → 0.18)
+// Lê campo em % e devolve decimal (18 → 0.18)
 function parsePercentField(el) {
   if (!el) return 0;
   const raw = String(el.value || "").replace(",", ".").trim();
@@ -47,7 +44,6 @@ let ALIQUOTA_INTERNA = {};
 let ALIQUOTA_INTERESTADUAL = {};
 let NCM_MAP = {};
 let NCM_META = { dataAtualizacao: "", ato: "" };
-let MVA_LIST = []; // { key, digits, mva }
 
 // Normaliza NCM pra só dígitos
 function normalizarNcm(str) {
@@ -55,14 +51,13 @@ function normalizarNcm(str) {
   return String(str).replace(/\D/g, "");
 }
 
-// Carrega os 4 JSONs
+// Carrega os 3 JSONs (interna, interestadual, NCM)
 async function carregarTabelas() {
   try {
-    const [intRes, interRes, ncmRes, mvaRes] = await Promise.all([
+    const [intRes, interRes, ncmRes] = await Promise.all([
       fetch("Aliquota_interna.json"),
       fetch("Tabela_Aliquota_interestadual.json"),
-      fetch("Tabela_NCM_Vigente_20251104.json"),
-      fetch("Tabela_MVA.json")
+      fetch("Tabela_NCM_Vigente_20251104.json")
     ]);
 
     if (intRes.ok) {
@@ -84,36 +79,11 @@ async function carregarTabelas() {
         }
       }
     }
-    if (mvaRes.ok) {
-      const mvaData = await mvaRes.json();
-      MVA_LIST = Object.entries(mvaData)
-        .map(([k, v]) => {
-          const digits = normalizarNcm(k);
-          const mva = Number(v);
-          if (!digits || isNaN(mva)) return null;
-          return { key: k, digits, mva };
-        })
-        .filter(Boolean)
-        // ordena por especificidade (mais dígitos primeiro)
-        .sort((a, b) => b.digits.length - a.digits.length);
-    }
   } catch (e) {
     console.error("Erro ao carregar JSONs:", e);
   } finally {
-    atualizarCamposAliquotas();
     atualizarDescricaoNcm();
   }
-}
-
-// Procura MVA mais específico pra um NCM (prefix match)
-function findMvaForNcm(ncmDigits) {
-  if (!ncmDigits || !MVA_LIST.length) return null;
-  for (const item of MVA_LIST) {
-    if (ncmDigits.startsWith(item.digits)) {
-      return item; // primeiro já é o mais específico, porque lista está ordenada
-    }
-  }
-  return null;
 }
 
 function fillUFs() {
@@ -129,57 +99,16 @@ function fillUFs() {
   d.innerHTML = opts;
 }
 
-// Usa JSON pra preencher alíquota interna e interestadual
-function atualizarCamposAliquotas() {
-  const ufOrigemEl = document.getElementById("ufOrigem");
-  const ufDestinoEl = document.getElementById("ufDestino");
-  const aliqIntEl = document.getElementById("aliqInt");
-  const aliqInterEl = document.getElementById("aliqInter");
-
-  if (!ufOrigemEl || !ufDestinoEl) return;
-
-  const ufO = ufOrigemEl.value;
-  const ufD = ufDestinoEl.value;
-
-  // Alíquota interna automática (em %)
-  if (ufD && Object.prototype.hasOwnProperty.call(ALIQUOTA_INTERNA, ufD) && aliqIntEl) {
-    const aliqInt = ALIQUOTA_INTERNA[ufD]; // ex: 18, 17.5...
-    aliqIntEl.value = String(aliqInt).replace(".", ",");
-  }
-
-  // Alíquota interestadual automática (em %)
-  if (
-    ufO &&
-    ufD &&
-    ALIQUOTA_INTERESTADUAL[ufO] &&
-    ALIQUOTA_INTERESTADUAL[ufO][ufD] != null &&
-    aliqInterEl
-  ) {
-    const aliq = ALIQUOTA_INTERESTADUAL[ufO][ufD]; // ex: 7, 12...
-    aliqInterEl.value = String(aliq).replace(".", ",");
-  }
-
-  // Se não achar nada, deixo em branco
-}
-
-// Atualiza descrição do NCM e MVA automático
+// Atualiza descrição do NCM (somente visual)
 function atualizarDescricaoNcm() {
   const ncmInput = document.getElementById("ncm");
   const descEl = document.getElementById("ncmDescricao");
-  const mvaEl = document.getElementById("mva");
-  const usarMvaEl = document.getElementById("usarMva");
-
   if (!ncmInput || !descEl) return;
 
   const keyDigits = normalizarNcm(ncmInput.value);
 
   if (!keyDigits) {
     descEl.textContent = "Digite o NCM para buscar";
-    if (mvaEl) {
-      mvaEl.value = "";
-      mvaEl.title = "";
-    }
-    if (usarMvaEl) usarMvaEl.checked = false;
     return;
   }
 
@@ -191,57 +120,33 @@ function atualizarDescricaoNcm() {
   const item = NCM_MAP[keyDigits];
   if (!item) {
     descEl.textContent = "NCM não encontrado na tabela vigente.";
-    if (mvaEl) {
-      mvaEl.value = "";
-      mvaEl.title = "NCM não encontrado na tabela de NCM.";
-    }
-    if (usarMvaEl) usarMvaEl.checked = false;
     return;
   }
 
   descEl.textContent = `${item.Codigo} - ${item.Descricao}`;
-
-  // MVA automático pela tabela
-  if (mvaEl && usarMvaEl) {
-    const mvaInfo = findMvaForNcm(keyDigits);
-    if (mvaInfo) {
-      mvaEl.value = String(mvaInfo.mva).replace(".", ",");
-      usarMvaEl.checked = true;
-      mvaEl.readOnly = true;
-      mvaEl.title = `MVA automático (${mvaInfo.key})`;
-    } else {
-      mvaEl.value = "0";
-      usarMvaEl.checked = false;
-      mvaEl.readOnly = true;
-      mvaEl.title = "NCM sem MVA cadastrado na tabela.";
-    }
-  }
 }
 
-// Cálculo principal
+// Cálculo principal (alíquotas 100% internas)
 function calcular(e) {
   e.preventDefault();
 
   const valorEl = document.getElementById("valor");
-  const aliqIntEl = document.getElementById("aliqInt");
-  const aliqInterEl = document.getElementById("aliqInter");
   const fcpEl = document.getElementById("fcp");
   const redDestinoEl = document.getElementById("redDestino");
-  const mvaEl = document.getElementById("mva");
-  const usarMvaEl = document.getElementById("usarMva");
+  const redOrigemEl = document.getElementById("redOrigem");
   const ufOrigemEl = document.getElementById("ufOrigem");
   const ufDestinoEl = document.getElementById("ufDestino");
   const ncmEl = document.getElementById("ncm");
 
   const valor = getNumberFromBRL(valorEl && valorEl.value);
-  const aliqInt = parsePercentField(aliqIntEl);     // decimal
-  const aliqInter = parsePercentField(aliqInterEl); // decimal
   const fcpPct = parsePercentField(fcpEl);          // decimal
   const redDestino = parsePercentField(redDestinoEl); // decimal
-  const mvaPct = parsePercentField(mvaEl);          // decimal
-  const usarMva = usarMvaEl && usarMvaEl.checked;
+  const redOrigem = parsePercentField(redOrigemEl);   // decimal (usado só no resumo)
 
-  if (!ufOrigemEl.value || !ufDestinoEl.value) {
+  const ufO = ufOrigemEl && ufOrigemEl.value;
+  const ufD = ufDestinoEl && ufDestinoEl.value;
+
+  if (!ufO || !ufD) {
     alert("Selecione UF de origem e destino.");
     return;
   }
@@ -252,19 +157,24 @@ function calcular(e) {
     return;
   }
 
-  if (!aliqInt && !aliqInter) {
-    alert("Não foi possível determinar as alíquotas. Verifique os JSON de alíquotas.");
+  // Pega alíquotas dos JSON (em %)
+  const aliqIntPct = ALIQUOTA_INTERNA[ufD];
+  const aliqInterPct =
+    ALIQUOTA_INTERESTADUAL[ufO] &&
+    ALIQUOTA_INTERESTADUAL[ufO][ufD];
+
+  if (aliqIntPct == null || aliqInterPct == null) {
+    alert("Não foi possível determinar as alíquotas para essa combinação de UF. Verifique os JSON de alíquotas.");
     return;
   }
 
-  // Base com ou sem MVA
-  let base = valor;
-  if (usarMva && mvaPct > 0) {
-    base = base * (1 + mvaPct);
-  }
+  const aliqInt = aliqIntPct / 100;     // decimal
+  const aliqInter = aliqInterPct / 100; // decimal
 
-  const baseDestino = base * (1 - redDestino);
+  // Base de cálculo no destino (sem MVA, só redução destino)
+  const baseDestino = valor * (1 - redDestino);
 
+  // Diferença por dentro
   let difPct = 0;
   if (aliqInt > 0) {
     difPct = (aliqInt - aliqInter) / (1 - aliqInt);
@@ -279,40 +189,47 @@ function calcular(e) {
   if (cards) cards.classList.remove("hidden");
   if (detalhe) detalhe.classList.remove("hidden");
 
-  // Cards
+  // Cards (sem mostrar % de alíquota)
   const outBase = document.getElementById("outBase");
-  const outAliqInt = document.getElementById("outAliqInt");
-  const outAliqInter = document.getElementById("outAliqInter");
   const outDifal = document.getElementById("outDifal");
   const outFcp = document.getElementById("outFcp");
 
   if (outBase) outBase.textContent = fmtMoney(baseDestino);
-  if (outAliqInt) outAliqInt.textContent = fmtPercent(aliqInt);
-  if (outAliqInter) outAliqInter.textContent = fmtPercent(aliqInter);
   if (outDifal) outDifal.textContent = fmtMoney(difal);
   if (outFcp) outFcp.textContent = fmtMoney(fcpValor);
 
-  // Tabela
+  // Tabela (sem mostrar % de alíquota)
   const rowBase = document.getElementById("rowBase");
-  const rowPct = document.getElementById("rowPct");
   const rowDifal = document.getElementById("rowDifal");
   const rowFcp = document.getElementById("rowFcp");
 
   if (rowBase) rowBase.textContent = fmtMoney(baseDestino);
-  if (rowPct) rowPct.textContent = ((difPct || 0) * 100).toFixed(2) + "%";
   if (rowDifal) rowDifal.textContent = fmtMoney(difal);
   if (rowFcp) rowFcp.textContent = fmtMoney(fcpValor);
 
-  // Resumo para copiar
+  // NCM + descrição pra resumo
+  const ncmDigits = normalizarNcm(ncmEl && ncmEl.value);
+  let ncmDescricao = "";
+  if (ncmDigits && NCM_MAP[ncmDigits]) {
+    ncmDescricao = `${NCM_MAP[ncmDigits].Codigo} - ${NCM_MAP[ncmDigits].Descricao}`;
+  }
+
+  // Resumo para copiar (aqui SIM aparecem as alíquotas)
   const resumo = [
-    `UF Origem: ${ufOrigemEl.value}`,
-    `UF Destino: ${ufDestinoEl.value}`,
-    `NCM: ${(ncmEl && ncmEl.value) || ""}`,
-    `Base no destino: ${fmtMoney(baseDestino)}`,
-    `MVA aplicado: ${(mvaPct * 100).toFixed(2).replace(".", ",")}%`,
-    `Alíquota interna: ${(aliqInt * 100).toFixed(2).replace(".", ",")}%`,
-    `Alíquota interestadual: ${(aliqInter * 100).toFixed(2).replace(".", ",")}%`,
+    `UF Origem: ${ufO}`,
+    `UF Destino: ${ufD}`,
+    `NCM: ${ncmDescricao || (ncmEl && ncmEl.value) || "Não informado"}`,
+    `Valor da operação: ${fmtMoney(valor)}`,
+    ``,
+    `Alíquota interna destino (JSON): ${aliqIntPct.toFixed(2).replace(".", ",")}%`,
+    `Alíquota interestadual (JSON): ${aliqInterPct.toFixed(2).replace(".", ",")}%`,
     `Diferença por dentro: ${(difPct * 100).toFixed(2).replace(".", ",")}%`,
+    ``,
+    `Redução base origem: ${(redOrigem * 100).toFixed(2).replace(".", ",")}%`,
+    `Redução base destino: ${(redDestino * 100).toFixed(2).replace(".", ",")}%`,
+    `FCP destino: ${(fcpPct * 100).toFixed(2).replace(".", ",")}%`,
+    ``,
+    `Base de cálculo no destino: ${fmtMoney(baseDestino)}`,
     `DIFAL devido ao destino: ${fmtMoney(difal)}`,
     `FCP: ${fmtMoney(fcpValor)}`
   ].join("\n");
@@ -329,18 +246,15 @@ function calcular(e) {
     };
   }
 
-  // Link de compartilhamento (guarda sempre em decimal)
+  // Link de compartilhamento (guarda parâmetros básicos)
   const params = new URLSearchParams({
     valor: String(valor),
-    aliqInt: String(aliqInt),
-    aliqInter: String(aliqInter),
     fcp: String(fcpPct),
     redDestino: String(redDestino),
-    ufOrigem: ufOrigemEl && ufOrigemEl.value || "",
-    ufDestino: ufDestinoEl && ufDestinoEl.value || "",
-    ncm: ncmEl && ncmEl.value || "",
-    mva: String(mvaPct),
-    usarMva: usarMva ? "1" : "0"
+    redOrigem: String(redOrigem),
+    ufOrigem: ufO,
+    ufDestino: ufD,
+    ncm: (ncmEl && ncmEl.value) || ""
   });
 
   const btnShare = document.getElementById("btnShare");
@@ -364,16 +278,6 @@ function restoreFromURL() {
     });
   }
 
-  const aliqIntEl = document.getElementById("aliqInt");
-  if (aliqIntEl && q.has("aliqInt")) {
-    aliqIntEl.value = ((Number(q.get("aliqInt")) || 0) * 100).toFixed(2);
-  }
-
-  const aliqInterEl = document.getElementById("aliqInter");
-  if (aliqInterEl && q.has("aliqInter")) {
-    aliqInterEl.value = ((Number(q.get("aliqInter")) || 0) * 100).toFixed(2);
-  }
-
   const fcpEl = document.getElementById("fcp");
   if (fcpEl && q.has("fcp")) {
     fcpEl.value = ((Number(q.get("fcp")) || 0) * 100).toFixed(2);
@@ -382,6 +286,11 @@ function restoreFromURL() {
   const redDestinoEl = document.getElementById("redDestino");
   if (redDestinoEl && q.has("redDestino")) {
     redDestinoEl.value = ((Number(q.get("redDestino")) || 0) * 100).toFixed(2);
+  }
+
+  const redOrigemEl = document.getElementById("redOrigem");
+  if (redOrigemEl && q.has("redOrigem")) {
+    redOrigemEl.value = ((Number(q.get("redOrigem")) || 0) * 100).toFixed(2);
   }
 
   const ufOrigemEl = document.getElementById("ufOrigem");
@@ -398,18 +307,7 @@ function restoreFromURL() {
     ncmEl.value = q.get("ncm") || "";
   }
 
-  const mvaEl = document.getElementById("mva");
-  if (mvaEl && q.has("mva")) {
-    mvaEl.value = ((Number(q.get("mva")) || 0) * 100).toFixed(2);
-  }
-
-  const usarMvaEl = document.getElementById("usarMva");
-  if (usarMvaEl && q.has("usarMva")) {
-    usarMvaEl.checked = q.get("usarMva") === "1";
-  }
-
   atualizarDescricaoNcm();
-  atualizarCamposAliquotas();
 }
 
 // Boot
@@ -427,18 +325,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const detalhe = document.getElementById("detalhe");
       if (cards) cards.classList.add("hidden");
       if (detalhe) detalhe.classList.add("hidden");
-
-      const mvaEl = document.getElementById("mva");
-      const usarMvaEl = document.getElementById("usarMva");
-      if (mvaEl) mvaEl.value = "";
-      if (usarMvaEl) usarMvaEl.checked = false;
     });
   }
-
-  const ufOrigemEl = document.getElementById("ufOrigem");
-  const ufDestinoEl = document.getElementById("ufDestino");
-  if (ufOrigemEl) ufOrigemEl.addEventListener("change", atualizarCamposAliquotas);
-  if (ufDestinoEl) ufDestinoEl.addEventListener("change", atualizarCamposAliquotas);
 
   const ncmInput = document.getElementById("ncm");
   if (ncmInput) {
